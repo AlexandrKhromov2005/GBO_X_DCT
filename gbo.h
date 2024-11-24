@@ -1,6 +1,6 @@
 #ifndef GBO_H
 #define GBO_H
 
-extern "C" void x_next(double** population, int cur_vec, int best_ind, int worst_ind, unsigned char cur_iter, unsigned char iter_number, double pr, int th, int n);
+extern "C" void gbo(double** population, int best_ind, int worst_ind, int cur_inter, int m, int n, double pr, double th);
 
 #endif
