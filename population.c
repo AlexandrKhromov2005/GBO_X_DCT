@@ -82,6 +82,9 @@ double of(double** original_dct_block, double** changed_dct_block, double* vecto
     unsigned char** changed_block = (unsigned char**)malloc(8 * sizeof(unsigned char*));
     unsigned char** original_block = (unsigned char**)malloc(8 * sizeof(unsigned char*));
 
+    unsigned char** new_dct_block = (double**)malloc(8 * sizeof(double*));
+
+
     if (changed_block == NULL || original_block == NULL) {
         return -1.0; // Обработка ошибки выделения памяти
     }
@@ -89,6 +92,8 @@ double of(double** original_dct_block, double** changed_dct_block, double* vecto
     for (int i = 0; i < 8; i++) {
         changed_block[i] = (unsigned char*)malloc(8 * sizeof(unsigned char));
         original_block[i] = (unsigned char*)malloc(8 * sizeof(unsigned char));
+        new_dct_block[i] = (double*)malloc(8 * sizeof(double));
+
 
         if (changed_block[i] == NULL || original_block[i] == NULL) {
             return -1.0; // Обработка ошибки выделения памяти
@@ -98,8 +103,10 @@ double of(double** original_dct_block, double** changed_dct_block, double* vecto
     rev_dct_func(changed_block, changed_dct_block);
     rev_dct_func(original_block, original_dct_block);
 
-    double s1 = get_s1_new_sum(original_dct_block, vector);
-    double s0 = get_s0_new_sum(original_dct_block, vector);
+    dct_func(changed_block, new_dct_block);
+
+    double s1 = get_s1_sum(new_dct_block);
+    double s0 = get_s0_sum(new_dct_block);
     double psnr = block_psnr(original_block, changed_block);
 
     printf("PSNR = %f", psnr);
@@ -118,9 +125,11 @@ double of(double** original_dct_block, double** changed_dct_block, double* vecto
     for (int i = 0; i < 8; i++) {
         free(changed_block[i]);
         free(original_block[i]);
+        free(new_dct_block[i]);
     }
     free(changed_block);
     free(original_block);
+    free(new_dct_block);
 
     return result;
 }
