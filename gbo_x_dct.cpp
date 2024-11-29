@@ -3,177 +3,187 @@
 #include "image_processing.h"
 #include "population.h"
 #include "gbo.h"
+#include "metrics.h"
 #include "dct_functions.h"
 #include <time.h>
+#include "block_metrics.h"
 #include <random>
-
-double block_mse(unsigned char** original_block, unsigned char** changed_block) {
-    double mse = 0.0;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            mse += ((original_block[i][j] - changed_block[i][j]) * (original_block[i][j] - changed_block[i][j]));
-        }
-    }
-
-    return mse / 64.0;
-}
-
-double block_psnr(unsigned char** original_block, unsigned char** changed_block) {
-    return 10 * log10((255.0 * 255.0) / block_mse(original_block, changed_block));
-}
+#include <vector>
+#define POPSIZE 100
+#define WM_SIZE 1024
 
 int main() {
 	srand(time(NULL));
 
-	// Измерение времени выполнения
-	clock_t start = clock();
+	int mode;
+	std::cout << "Enter mode: \n0)Embedding WM \n1)Extraction WM \n2)Metrics\n";
+	std::cin >> mode;
 
-	double** block = new double* [8];
-	double** block_new = new double* [8];
+	//Встраивание ЦВЗ
+	if (mode == 0) {
+		//Импорт изображения
+		std::string image_path;
+		std::cout << "Enter the path of the image:\n";
+		std::cin >> image_path;
+		std::vector<std::vector<std::vector<double>>> dct_blocks = split_to_dct_blocks(image_path);
+		std::vector<std::vector<std::vector<double>>> new_dct_blocks;
 
-	unsigned char** block_pic = new unsigned char* [8];
-	unsigned char** block_new_pic = new unsigned char* [8];
+		std::string new_image_path, wm_path;
+		int n, m, th;
+		double pr;
 
-	for (int i = 0; i < 8; ++i) {
-		block[i] = new double[8];
-		block_new[i] = new double[8];
-		block_pic[i] = new unsigned char[8];
-		block_new_pic[i] = new unsigned char[8];
-	}
+		//Импорт ЦВЗ
+		std::cout << "Enter the path of the watermark:\n";
+		std::cin >> wm_path;
+		unsigned char wm[WM_SIZE];
+		get_wm_matrix(wm_path, wm);
 
-	// Инициализация значениями из матрицы
-	block[0][0] = 180.0;  // Заменяем DC на 180.0
-	block[0][1] = 3.87;
-	block[0][2] = 3.65;
-	block[0][3] = 0.13;
-	block[0][4] = 0.38;
-	block[0][5] = -1.87;
-	block[0][6] = -3.27;
-	block[0][7] = 5.24;
+		std::cout << "Enter the path to save the image:\n";
+		std::cin >> new_image_path;
 
-	block[1][0] = 5.75;
-	block[1][1] = -1.09;
-	block[1][2] = -0.20;
-	block[1][3] = -2.72;
-	block[1][4] = 0.26;
-	block[1][5] = 0.46;
-	block[1][6] = -3.80;
-	block[1][7] = 2.44;
+		//Импорт  N, M, Th, pr
+		std::cout << "Enter size of population:\n";
+		std::cin >> n;
+		std::cout << "Enter number of iterations:\n";
+		std::cin >> m;
+		std::cout << "Enter limit of values:\n";
+		std::cin >> th;
+		std::cout << "Enter probability:\n";
+		std::cin >> pr;
 
-	block[2][0] = -4.83;
-	block[2][1] = 0.18;
-	block[2][2] = -1.33;
-	block[2][3] = 0.17;
-	block[2][4] = -0.28;
-	block[2][5] = 0.38;
-	block[2][6] = 3.21;
-	block[2][7] = -3.11;
-
-	block[3][0] = 2.04;
-	block[3][1] = 2.16;
-	block[3][2] = 2.71;
-	block[3][3] = 2.27;
-	block[3][4] = -2.62;
-	block[3][5] = -1.19;
-	block[3][6] = 2.27;
-	block[3][7] = 0.33;
-
-	block[4][0] = -1.13;
-	block[4][1] = -1.91;
-	block[4][2] = -1.37;
-	block[4][3] = -2.32;
-	block[4][4] = 1.63;
-	block[4][5] = 1.29;
-	block[4][6] = -0.38;
-	block[4][7] = -0.49;
-
-	block[5][0] = 1.80;
-	block[5][1] = -0.23;
-	block[5][2] = -1.00;
-	block[5][3] = -0.81;
-	block[5][4] = -1.87;
-	block[5][5] = 1.75;
-	block[5][6] = 0.39;
-	block[5][7] = -0.47;
-
-	block[6][0] = -2.19;
-	block[6][1] = -0.69;
-	block[6][2] = 1.21;
-	block[6][3] = 1.28;
-	block[6][4] = 1.61;
-	block[6][5] = -2.98;
-	block[6][6] = -2.92;
-	block[6][7] = 0.74;
-
-	block[7][0] = -1.01;
-	block[7][1] = -2.18;
-	block[7][2] = -1.40;
-	block[7][3] = -1.33;
-	block[7][4] = -1.13;
-	block[7][5] = 2.68;
-	block[7][6] = -0.18;
-	block[7][7] = 1.57;
-
-	double pr = 0.5;
-	int th = 5; //разброс
-	int n = 30; //кол-во векторов
-	int m = 40; //кол-во итераций
-
-	double** population = create_population(th, n);
-	int best_ind, worst_ind = -1;
-
-	for (int cur_iter = 0; cur_iter < m; cur_iter++) {
-
-		printf("\nITERATION: %d\n", cur_iter);
-
-		best_ind = find_x_best(population, block, n, 0);
-		printf("\nBEST\n");
-		for (int i = 0; i < 22; i++) {
-			printf("%f ", population[best_ind][i]);
-		}
-		printf("\n");
-
-		worst_ind = find_x_worst(population, block, n, 0);
-		printf("\nWORST\n");
-		for (int i = 0; i < 22; i++) {
-			printf("%f ", population[worst_ind][i]);
-		}
-		printf("\n");
-
-		gbo(population, best_ind, worst_ind, cur_iter, m, n, pr, th);
-		}
+		//Итерация по каждому ДКП блоку
+		for (int cur_block = 0; cur_block < dct_blocks.size(); cur_block++) {
 		
-	best_ind = find_x_best(population, block, n, 0);
-	
-	block_new = apply_x(block, population[best_ind]);
+		//Создание инициализирующей популяции
+		double population[POPSIZE][22];
+		create_population(th, n, population);
+		
+		//Инициализация индексов лучшего и худшего векторов 
+		int best_ind = -1; 
+		int worst_ind = -1;
 
-	double s1 = get_s1_sum(block_new);
-	double s0 = get_s0_sum(block_new);
+		double block[8][8];
+		double block_new[8][8];
+		from_vec_to_list(block, dct_blocks[cur_block]);
 
-	printf("NEW S0 = %f , S1 = %f\n", s0, s1);
+		//Обновление популяции на протяжении M итераций	
+		for (int cur_iter = 0; cur_iter < m; cur_iter++) {
+			best_ind = find_x_best(population, block, n, wm[cur_block % WM_SIZE]);
+			worst_ind = find_x_worst(population, block, n, wm[cur_block % WM_SIZE]);
 
-	rev_dct_func(block_pic, block);
-	rev_dct_func(block_new_pic, block_new);
+			gbo(population, best_ind, worst_ind, cur_iter, m, n, pr, th);
+		}
 
-	double psnr = block_psnr(block_pic, block_new_pic);
-	printf("\n FINAL PSNR = %f\n", psnr);
-	
-	// Завершение измерения времени
-	clock_t end = clock();
-	double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
+		//Встраивание лучшего вектора
+		best_ind = find_x_best(population, block, n, wm[cur_block % WM_SIZE]);
+		apply_x(block, population[best_ind], block_new);
 
-	printf("\nTime =  %f seconds\n", time_spent);
+		//Записываем его в вектор нового изображения
+		save_new_block(new_dct_blocks, block_new);
+		
+		//Вывод проделанной работы
+		std::cout << "Completed " << ((double)cur_block / dct_blocks.size()) * 100 << "%\n";
+		}
 
-	// Освобождение памяти
-	for (int i = 0; i < 8; ++i) {
-		delete[] block[i];
-		delete[] block_new[i];
-		delete[] block_pic[i];
-		delete[] block_new_pic[i];
+		//Сохрание нового изображения
+		save_image_from_dct_blocks(new_dct_blocks, new_image_path);
+		std::cout << "Image saved.\n";
 	}
-	delete[] block;
-	delete[] block_new;
-	delete[] block_pic;
-	delete[] block_new_pic;
 
+	else if (mode == 1) {
+
+		//Импорт изображения
+		std::string image_path;
+		std::cout << "Enter the path of the image:\n";
+		std::cin >> image_path;
+		std::vector<std::vector<std::vector<double>>> dct_blocks = split_to_dct_blocks(image_path);
+
+		//Путь для сохранения извлеченного ЦВЗ
+		std::string wm_path;
+		std::cout << "Enter the path to save the watermark:\n";
+		std::cin >> wm_path;
+
+		std::vector<unsigned char> wm_bits;
+
+		//Итерация по ДКП блокам изображения и извлечение битов ЦВЗ
+		for (int cur_block = 0; cur_block < dct_blocks.size(); cur_block++) {
+
+			double block[8][8];
+			from_vec_to_list(block, dct_blocks[cur_block]);
+
+			double s1 = get_s1_sum(block);
+			double s0 = get_s0_sum(block);
+
+			if (s1 < s0) {
+				wm_bits.push_back(0);
+			}
+			else{ wm_bits.push_back(1); }
+		}
+
+		//Процесс голосования и формирование извлеченного ЦВЗ
+		unsigned char wm[WM_SIZE];
+		for(int i = 0; i < WM_SIZE; i++){
+			unsigned char zero = 0;
+			unsigned char one = 0;
+
+			for (int j = 0; j < wm_bits.size(); j++) {
+				if (j % WM_SIZE == i) {
+					if (wm_bits[j] == 0) {
+						zero++;
+					}
+					else { one++; }
+				}
+			}
+
+			if (zero > one) {
+				wm[i] = 0;
+			}
+			else { wm[i] = 1; }
+		}
+
+		//Вывод ЦВЗ
+		std::cout << "WATERMARK\n";
+		for (int i = 0; i < sqrt(WM_SIZE); i++) {
+			for (int j = 0; j < sqrt(WM_SIZE); j++) {
+				std::cout << (int)wm[i * (int)sqrt(WM_SIZE) + j] << " ";
+			}
+			std::cout << "\n";
+		}
+
+		//Сохранение извлеченного ЦВЗ
+		save_wm_matrix(wm_path, wm);
+		std::cout << "Watermark saved.\n";
+	}
+
+	else if (mode == 2) {
+
+		//Импорт исходного изображения
+		std::string image_path, new_image_path, wm_path, new_wm_path;
+		std::cout << "Enter the path of the image:\n";
+		std::cin >> image_path;
+		std::vector<unsigned char> img_pixels = img_to_vec(image_path);
+
+		//Импорт изображения, в которое встроен ЦВЗ
+		std::cout << "Enter the path of the new image:\n";
+		std::cin >> new_image_path;
+		std::vector<unsigned char> new_img_pixels = img_to_vec(new_image_path);
+
+		//Импорт исходного ЦВЗ
+		std::cout << "Enter the path of the watermark:\n";
+		std::cin >> wm_path;
+		unsigned char wm[WM_SIZE];
+		get_wm_matrix(wm_path, wm);
+
+		//Импорт извлеченного ЦВЗ
+		std::cout << "Enter the path of the extracted watermark:\n";
+		std::cin >> new_wm_path;
+		unsigned char new_wm[WM_SIZE];
+		get_wm_matrix(new_wm_path, new_wm);
+
+		//Вычисление метрик
+		mse(img_pixels, new_img_pixels);
+		ssim(img_pixels, new_img_pixels);
+		ber(wm, new_wm);
+		ncc(wm, new_wm);
+	}
 }
