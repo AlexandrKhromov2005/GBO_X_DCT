@@ -6,7 +6,7 @@ double a_coef(int k) {
     return (k == 0) ? sqrt(1.0 / 8.0) : sqrt(2.0 / 8.0);
 }
 
-void dct_func(unsigned char** block, double** dct_block) {
+void dct_func(unsigned char block[8][8], double dct_block[8][8]) {
     for (int u = 0; u < 8; u++) {
         for (int v = 0; v < 8; v++) {
             double dct_coef = 0.0;
@@ -22,7 +22,7 @@ void dct_func(unsigned char** block, double** dct_block) {
     }
 }
 
-void rev_dct_func(unsigned char** block, double** dct_block) {
+void rev_dct_func(unsigned char block[8][8], double dct_block[8][8]) {
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
             double sum = 0.0;
@@ -37,4 +37,3 @@ void rev_dct_func(unsigned char** block, double** dct_block) {
         }
     }
 }
-
