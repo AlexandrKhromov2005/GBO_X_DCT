@@ -49,6 +49,13 @@ double new_rho(double alpha) {
 //Вычисление инедксов рандомных векторов
 void gen_indexes(int indexes[5], int n, int cur_ind, int best_ind, int worst_ind) {
 	int cnt = 0;
+
+	indexes[0] = -1;
+	indexes[1] = -1;
+	indexes[2] = -1;
+	indexes[3] = -1;
+	indexes[4] = -1;
+	
 	while (cnt < 5) {
 		int temp = rand() % n;
 		if ((indexes[0] != temp) && (indexes[1] != temp) && (indexes[2] != temp) && (indexes[3] != temp) && (indexes[4] != temp) && (cur_ind != temp)) {
