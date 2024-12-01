@@ -8,7 +8,10 @@
 #include "block_metrics.h"
 #include "dct_functions.h"
 
-
+/*typedef struct {
+    int best;
+    int worst;
+}xind;*/
 
 double get_s0_sum(double block[8][8]) {
     return fabs(block[5][1]) + fabs(block[6][1]) + fabs(block[7][1]) +
@@ -139,4 +142,28 @@ int find_x_worst(double population[][22], double original_dct_block[8][8], int p
     return worst_index;
 }
 
+
+/*xind find_x_bw(double population[][22], double original_dct_block[8][8], int popul_size, const char b){
+    xind result;
+    double worst_value = -DBL_MAX;
+    double best_value = DBL_MAX;
+    result.best = -1;
+    result.worst = -1;
+    for (int i = 0; i < popul_size; i++){
+        double changed_dct_block[8][8];
+        apply_x(original_dct_block, population[i], changed_dct_block);
+        double value = of(original_dct_block, changed_dct_block, population[i], b);
+
+        if (value > worst_value) {
+            result.worst = i;
+            worst_value = value;
+        }
+
+        if (value < best_value) {
+            result.best = i;
+            best_value = value;
+        }
+    }
+    return result;
+} */
 
