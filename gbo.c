@@ -3,6 +3,8 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+#include "population.h"
+
 #define POPSIZE 100 
 
 #define PI acos(-1)
@@ -95,6 +97,8 @@ void gsr(double x_next[22], double x[22], double x1[22], double x2[22], double x
 	//Вычисление Q
 	double q [22];
 
+
+
 	//Вычисление вектора следующей популяции
 	for (int i = 0; i < 22; i++) {
 		delta[i] = 2.0 * rand_num() * fabs(((xr1[i] + xr2[i] + xr3[i] + xr4[i]) / 4.0) - x[i]);
@@ -105,9 +109,9 @@ void gsr(double x_next[22], double x[22], double x1[22], double x2[22], double x
 
 		z[i] = x[i] - randn() * ((2 * x_delta[i] * x[i]) / (x_worst[i] - x_best[i] + epsilon));
 
-		p[i] = rand_num() * (((z[i] + x[i]) / 2.0) + rand() * x_delta[i]);
+		p[i] = rand_num() * (((z[i] + x[i]) / 2.0) + rand_num() * x_delta[i]);
 
-		q[i] = rand() * (((z[i] + x[i]) / 2.0) - rand_num() * x_delta[i]);
+		q[i] = rand_num() * (((z[i] + x[i]) / 2.0) - rand_num() * x_delta[i]);
 
 		x1[i] = x[i] - randn() * rho1 * ((2 * x_delta[i] * x[i]) / (p[i] - q[i] + epsilon)) + rand_num() * rho2 * (x_best[i] - x[i]);
 
@@ -115,8 +119,9 @@ void gsr(double x_next[22], double x[22], double x1[22], double x2[22], double x
 
 		x3[i] = x[i] - rho1 * (x2[i] - x1[i]);
 
-		x_next[i] = ra * (rb * x1[i] + (1 - rb) * x[i]) + (1 - ra) * x3[i];
+		x_next[i] = ra * (rb * x1[i] + (1 - rb) * x2[i]) + (1 - ra) * x3[i];
 	}
+
 }
 
 //Вычисление нового вектора через LEO
@@ -177,64 +182,59 @@ void leo(double x_next[22], double x[22], double x_best[22], double x1[22], doub
 }
 
 //Обновление популяции через GBO
-void gbo(double population[][22], int best_ind, int worst_ind, int cur_iter, int m, int n, double pr, double th) {
-
-	//выделяем память для новой популяции
-	double new_population [POPSIZE][22];
-
+void gbo(double population[][22], int m, int n, double pr, double th, double dct_block[8][8], unsigned char wm_bite) {
 	double epsilon = 0.1; //Инициализация epsilon
 
 	//обработка популяции
-	for (int cur_vec = 0; cur_vec < n; cur_vec++) {
-		double alpha;										   //инициализация alpha
-		double x1 [22];	   //вектор x1	
-		double x2 [22];	   //вектор x2
-		double xr1 [22];	   //1 рандомный вектор 	
-		double xr2 [22]; //2 рандомный вектор 	
-		double xr3 [22];    //3 рандомный вектор 	
-		double xr4 [22];    //4 рандомный вектор 	
-		double x_p [22];    //рандомный вектор p	
-		double x_rand [22]; //рандомно сгенерированный вектор
-		for (int i = 0; i < 22; i++) {
-			x_rand[i] = (double)(-th) + 2 * (double)th * rand_num();
-		}
-		double x_next [22];  //новый вектор
+	for (int cur_iter = 0; cur_iter < m; cur_iter++) {
+		for (int cur_vec = 0; cur_vec < n; cur_vec++) {
 
-		int indexes[5];
-		gen_indexes(indexes, n, cur_vec, best_ind, worst_ind); //Массив индексов рандомных векторов
+			int best_ind = find_x_best(population, dct_block, n, wm_bite);
+			int worst_ind = find_x_worst(population, dct_block, n, wm_bite);
 
-		//Копирование  рандомных векторов популяции
-		memcpy(xr1, population[indexes[0]], 22); 
-		memcpy(xr2, population[indexes[1]], 22);
-		memcpy(xr3, population[indexes[2]], 22);
-		memcpy(xr4, population[indexes[3]], 22);
-		memcpy(x_p, population[indexes[4]], 22);
-
-		//Вычисление нового вектора через GSR
-		gsr(x_next, population[cur_vec], x1, x2, population[best_ind], population[worst_ind], xr1, xr2, xr3, xr4, cur_iter, m, n, &alpha);
-
-		if (rand_num() < pr) {
-			//Вычисление нового вектора через LEO
-			leo(new_population[cur_vec], x_next, population[best_ind], x1, x2, xr1, xr2, x_p, x_rand, alpha, th);
-		}
-		else {
-			//Если LEO не сработал, то просто копируем значение, полученно после GSR
+			double alpha;										   //инициализация alpha
+			double x1[22];	   //вектор x1	
+			double x2[22];	   //вектор x2
+			double xr1[22];	   //1 рандомный вектор 	
+			double xr2[22]; //2 рандомный вектор 	
+			double xr3[22];    //3 рандомный вектор 	
+			double xr4[22];    //4 рандомный вектор 	
+			double x_p[22];    //рандомный вектор p	
+			double x_rand[22]; //рандомно сгенерированный вектор
 			for (int i = 0; i < 22; i++) {
-				if (x_next[i] > th) {
-					x_next[i] = th;
-				}
-				else if (x_next[i] < -th) {
-					x_next[i] = -th;
-				}
+				x_rand[i] = (double)(-th) + 2 * (double)th * rand_num();
 			}
-			memcpy(new_population[cur_vec], x_next, 22);
-		}
-	}
+			double x_next[22];  //новый вектор
 
-	//Обновление текущей популяции и освобождение выделенной памяти
-	for (int cur_vec = 0; cur_vec < n; cur_vec++) {
-		memset(population[cur_vec], 0, 22);
-		memcpy(population[cur_vec], new_population[cur_vec], 22);
-		memset(new_population[cur_vec], 0, 22);
+			int indexes[5];
+			gen_indexes(indexes, n, cur_vec, best_ind, worst_ind); //Массив индексов рандомных векторов
+
+			//Копирование  рандомных векторов популяции
+			memcpy(xr1, population[indexes[0]], 22);
+			memcpy(xr2, population[indexes[1]], 22);
+			memcpy(xr3, population[indexes[2]], 22);
+			memcpy(xr4, population[indexes[3]], 22);
+			memcpy(x_p, population[indexes[4]], 22);
+
+			//Вычисление нового вектора через GSR
+			gsr(x_next, population[cur_vec], x1, x2, population[best_ind], population[worst_ind], xr1, xr2, xr3, xr4, cur_iter, m, n, &alpha);
+
+			if (rand_num() < pr) {
+				//Вычисление нового вектора через LEO
+				leo(population[cur_vec], x_next, population[best_ind], x1, x2, xr1, xr2, x_p, x_rand, alpha, th);
+			}
+			else {
+				//Если LEO не сработал, то просто копируем значение, полученно после GSR
+				for (int i = 0; i < 22; i++) {
+					if (x_next[i] > th) {
+						x_next[i] = th;
+					}
+					else if (x_next[i] < -th) {
+						x_next[i] = -th;
+					}
+				}
+				memcpy(population[cur_vec], x_next, 22);
+			}
+		}
 	}
 }
