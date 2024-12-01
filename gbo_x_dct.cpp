@@ -28,7 +28,8 @@ int main() {
 		std::vector<std::vector<std::vector<double>>> dct_blocks = split_to_dct_blocks(image_path);
 		std::vector<std::vector<std::vector<double>>> new_dct_blocks;
 
-		std::string new_image_path, wm_path;
+		std::string new_image_path;
+		std::string	wm_path;
 		int n, m, th;
 		double pr;
 
@@ -54,35 +55,27 @@ int main() {
 		//Итерация по каждому ДКП блоку
 		for (int cur_block = 0; cur_block < dct_blocks.size(); cur_block++) {
 		
-		//Создание инициализирующей популяции
-		double population[POPSIZE][22];
-		create_population(th, n, population);
-		
-		//Инициализация индексов лучшего и худшего векторов 
-		int best_ind = -1; 
-		int worst_ind = -1;
+			//Создание инициализирующей популяции
+			double population[POPSIZE][22];
+			create_population(th, n, population);
 
-		double block[8][8];
-		double block_new[8][8];
-		from_vec_to_list(block, dct_blocks[cur_block]);
+			double block[8][8];
+			double block_new[8][8];
+			from_vec_to_list(block, dct_blocks[cur_block]);
 
-		//Обновление популяции на протяжении M итераций	
-		for (int cur_iter = 0; cur_iter < m; cur_iter++) {
+			//Оптимизауия векторов с использованием GBO	
+			gbo(population, m, n, pr, th, block, wm[cur_block % WM_SIZE]);
+
+			//Встраивание лучшего вектора
+			int best_ind = -1;
 			best_ind = find_x_best(population, block, n, wm[cur_block % WM_SIZE]);
-			worst_ind = find_x_worst(population, block, n, wm[cur_block % WM_SIZE]);
+			apply_x(block, population[best_ind], block_new);
 
-			gbo(population, best_ind, worst_ind, cur_iter, m, n, pr, th);
-		}
-
-		//Встраивание лучшего вектора
-		best_ind = find_x_best(population, block, n, wm[cur_block % WM_SIZE]);
-		apply_x(block, population[best_ind], block_new);
-
-		//Записываем его в вектор нового изображения
-		save_new_block(new_dct_blocks, block_new);
+			//Записываем его в вектор нового изображения
+			save_new_block(new_dct_blocks, block_new);
 		
-		//Вывод проделанной работы
-		std::cout << "Completed " << ((double)cur_block / dct_blocks.size()) * 100 << "%\n";
+			//Вывод проделанной работы
+			std::cout << "Completed " << ((double)(cur_block + 1 ) / dct_blocks.size()) * 100 << "%\n";
 		}
 
 		//Сохрание нового изображения
@@ -102,7 +95,6 @@ int main() {
 		std::string wm_path;
 		std::cout << "Enter the path to save the watermark:\n";
 		std::cin >> wm_path;
-
 		std::vector<unsigned char> wm_bits;
 
 		//Итерация по ДКП блокам изображения и извлечение битов ЦВЗ
@@ -186,4 +178,6 @@ int main() {
 		ber(wm, new_wm);
 		ncc(wm, new_wm);
 	}
+	std::cout << "Press any key to close this window...";
+	std::getchar();
 }
