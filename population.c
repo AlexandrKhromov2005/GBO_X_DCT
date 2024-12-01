@@ -20,12 +20,22 @@ double get_s0_sum(double block[8][8]) {
         fabs(block[0][7]) + fabs(block[1][7]);
 }
 
+/*#define GET_S0_SUM(block) (fabs((block)[5][1]) + fabs((block)[6][1]) + fabs((block)[7][1]) + \
+                           fabs((block)[3][3]) + fabs((block)[4][3]) + fabs((block)[5][3]) + \
+                           fabs((block)[1][5]) + fabs((block)[2][5]) + fabs((block)[3][5]) + \
+                           fabs((block)[0][7]) + fabs((block)[1][7]))*/
+
 double get_s1_sum(double block[8][8]) {
     return fabs(block[6][0]) + fabs(block[7][0]) + fabs(block[4][2]) +
         fabs(block[5][2]) + fabs(block[6][2]) + fabs(block[2][4]) +
         fabs(block[3][4]) + fabs(block[4][4]) + fabs(block[0][6]) +
         fabs(block[1][6]) + fabs(block[2][6]);
 }
+
+/*#define GET_S1_SUM(block) (fabs((block)[6][0]) + fabs((block)[7][0]) + fabs((block)[4][2]) + \
+                           fabs((block)[5][2]) + fabs((block)[6][2]) + fabs((block)[2][4]) + \
+                           fabs((block)[3][4]) + fabs((block)[4][4]) + fabs((block)[0][6]) + \
+                           fabs((block)[1][6]) + fabs((block)[2][6]))*/
 
 double rand_double() {
     return (double)rand() / RAND_MAX;
