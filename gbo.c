@@ -183,16 +183,13 @@ void leo(double x_next[22], double x[22], double x_best[22], double x1[22], doub
 
 //Обновление популяции через GBO
 void gbo(double population[][22], int m, int n, double pr, double th, double dct_block[8][8], unsigned char wm_bite) {
-	double epsilon = 0.1; //Инициализация epsilon
-
 	//обработка популяции
 	for (int cur_iter = 0; cur_iter < m; cur_iter++) {
+		int best_ind = find_x_best(population, dct_block, n, wm_bite);
+		int worst_ind = find_x_worst(population, dct_block, n, wm_bite);
+
 		for (int cur_vec = 0; cur_vec < n; cur_vec++) {
-
-			int best_ind = find_x_best(population, dct_block, n, wm_bite);
-			int worst_ind = find_x_worst(population, dct_block, n, wm_bite);
-
-			double alpha;										   //инициализация alpha
+			double alpha;		//инициализация alpha
 			double x1[22];	   //вектор x1	
 			double x2[22];	   //вектор x2
 			double xr1[22];	   //1 рандомный вектор 	
