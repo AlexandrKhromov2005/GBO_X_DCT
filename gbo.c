@@ -11,7 +11,7 @@
 
 //Вычисление rand от 0 до 1
 double rand_num() {
-	return (double)rand() / (double)RAND_MAX;
+	return (double)rand() / RAND_MAX;
 }
 
 //Вычисление  нормально распределенного числа от 0 до 1
