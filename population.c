@@ -8,6 +8,10 @@
 #include "block_metrics.h"
 #include "dct_functions.h"
 
+#define SIGN(n)((n > 0.0) ? 1.0 : -1.0)
+#define UPDATE_BLOCK(block, i, j, x_index) \
+    (block)[i][j] = (SIGN((block)[i][j])) * fabs(fabs((block)[i][j]) + (x)[x_index])
+
 /*typedef struct {
     int best;
     int worst;
@@ -41,9 +45,9 @@ double rand_double() {
     return (double)rand() / RAND_MAX;
 }
 
-double sign(double n) {
+/*double sign(double n) {
     return (n > 0.0) ? 1.0 : -1.0;
-}
+}*/
 
 void create_population(int th, int d, double population[][22]) {
     for (int i = 0; i < d; i++) {
@@ -121,28 +125,28 @@ void apply_x(double block[8][8], double x[22], double new_block[8][8]) {
             new_block[i][j] = block[i][j];
         }
     }
-    new_block[6][0] = sign(new_block[6][0]) * fabs(fabs(new_block[6][0]) + x[0]);
-    new_block[5][1] = sign(new_block[5][1]) * fabs(fabs(new_block[5][1]) + x[1]);
-    new_block[4][2] = sign(new_block[4][2]) * fabs(fabs(new_block[4][2]) + x[2]);
-    new_block[3][3] = sign(new_block[3][3]) * fabs(fabs(new_block[3][3]) + x[3]);
-    new_block[2][4] = sign(new_block[2][4]) * fabs(fabs(new_block[2][4]) + x[4]);
-    new_block[1][5] = sign(new_block[1][5]) * fabs(fabs(new_block[1][5]) + x[5]);
-    new_block[0][6] = sign(new_block[0][6]) * fabs(fabs(new_block[0][6]) + x[6]);
-    new_block[0][7] = sign(new_block[0][7]) * fabs(fabs(new_block[0][7]) + x[7]);
-    new_block[1][6] = sign(new_block[1][6]) * fabs(fabs(new_block[1][6]) + x[8]);
-    new_block[2][5] = sign(new_block[2][5]) * fabs(fabs(new_block[2][5]) + x[9]);
-    new_block[3][4] = sign(new_block[3][4]) * fabs(fabs(new_block[3][4]) + x[10]);
-    new_block[4][3] = sign(new_block[4][3]) * fabs(fabs(new_block[4][3]) + x[11]);
-    new_block[5][2] = sign(new_block[5][2]) * fabs(fabs(new_block[5][2]) + x[12]);
-    new_block[6][1] = sign(new_block[6][1]) * fabs(fabs(new_block[6][1]) + x[13]);
-    new_block[7][0] = sign(new_block[7][0]) * fabs(fabs(new_block[7][0]) + x[14]);
-    new_block[7][1] = sign(new_block[7][1]) * fabs(fabs(new_block[7][1]) + x[15]);
-    new_block[6][2] = sign(new_block[6][2]) * fabs(fabs(new_block[6][2]) + x[16]);
-    new_block[5][3] = sign(new_block[5][3]) * fabs(fabs(new_block[5][3]) + x[17]);
-    new_block[4][4] = sign(new_block[4][4]) * fabs(fabs(new_block[4][4]) + x[18]);
-    new_block[3][5] = sign(new_block[3][5]) * fabs(fabs(new_block[3][5]) + x[19]);
-    new_block[2][6] = sign(new_block[2][6]) * fabs(fabs(new_block[2][6]) + x[20]);
-    new_block[1][7] = sign(new_block[1][7]) * fabs(fabs(new_block[1][7]) + x[21]);
+    UPDATE_BLOCK(new_block, 6, 0, 0);
+    UPDATE_BLOCK(new_block, 5, 1, 1);
+    UPDATE_BLOCK(new_block, 4, 2, 2);
+    UPDATE_BLOCK(new_block, 3, 3, 3);
+    UPDATE_BLOCK(new_block, 2, 4, 4);
+    UPDATE_BLOCK(new_block, 1, 5, 5);
+    UPDATE_BLOCK(new_block, 0, 6, 6);
+    UPDATE_BLOCK(new_block, 0, 7, 7);
+    UPDATE_BLOCK(new_block, 1, 6, 8);
+    UPDATE_BLOCK(new_block, 2, 5, 9);
+    UPDATE_BLOCK(new_block, 3, 4, 10);
+    UPDATE_BLOCK(new_block, 4, 3, 11);
+    UPDATE_BLOCK(new_block, 5, 2, 12);
+    UPDATE_BLOCK(new_block, 6, 1, 13);
+    UPDATE_BLOCK(new_block, 7, 0, 14);
+    UPDATE_BLOCK(new_block, 7, 1, 15);
+    UPDATE_BLOCK(new_block, 6, 2, 16);
+    UPDATE_BLOCK(new_block, 5, 3, 17);
+    UPDATE_BLOCK(new_block, 4, 4, 18);
+    UPDATE_BLOCK(new_block, 3, 5, 19);
+    UPDATE_BLOCK(new_block, 2, 6, 20);
+    UPDATE_BLOCK(new_block, 1, 7, 21);
 }
 
 int find_x_best(double population[][22], double original_dct_block[8][8], int popul_size, const char b) {
