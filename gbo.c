@@ -93,24 +93,18 @@ void gsr(double x_next[22], double x[22], double x1[22], double x2[22], double x
 		delta[i] = 2.0 * rand_st * fabs(((xr1[i] + xr2[i] + xr3[i] + xr4[i]) / 4.0) - x[i]);
 	}
 
-	//Вычисление step
-	double step[22];
-	for (int i = 0; i < 22; i++) {
-		step[i] = ((x_best[i] - xr1[i]) + delta[i]) / 2.0;
-	}
-
-	//Вычиследние delta X
+	//Вычисление  delta X
 	double x_delta[22];
-	rand_st = ((double)(rand() % n) + 1);
+	rand_st = ((double)(rand() % n) + 1.0);
 	for (int i = 0; i < 22; i++) {
-		x_delta[i] = rand_st * fabs(step[i]);
+		x_delta[i] = rand_st * fabs(((x_best[i] - xr1[i]) + delta[i]) / 2.0);
 	}
 
 	//Вычисление Z
 	double z [22];
 	randn_st = randn();
 	for (int i = 0; i < 22; i++) {
-		z[i] = x[i] - randn_st * ((2 * x_delta[i] * x[i]) / (x_worst[i] - x_best[i] + epsilon));
+		z[i] = x[i] - randn_st * ((2.0 * x_delta[i] * x[i]) / (x_worst[i] - x_best[i] + epsilon));
 	}
 
 	//Вычисление P
@@ -128,23 +122,26 @@ void gsr(double x_next[22], double x[22], double x1[22], double x2[22], double x
 	for (int i = 0; i < 22; i++) {
 		q[i] = rand_st * (((z[i] + x[i]) / 2.0) - randn_st * x_delta[i]);
 	}
-
+	
+	//Вычисление X1
 	randn_st = randn();
 	rand_st = rand_num();
 	for (int i = 0; i < 22; i++) {
 		x1[i] = x[i] - randn_st * rho1 * ((2 * x_delta[i] * x[i]) / (p[i] - q[i] + epsilon)) + rand_st * rho2 * (x_best[i] - x[i]);
 	}
-
+	
+	//Вычисление X2
 	randn_st = randn();
 	rand_st = rand_num();
 	for (int i = 0; i < 22; i++) {
 		x2[i] = x_best[i] - randn_st * rho1 * ((2 * x_delta[i] * x[i]) / (p[i] - q[i] + epsilon)) + rand_st * rho2 * (xr1[i] - xr2[i]);
 	}
 
+	//Вычисление X3
 	for (int i = 0; i < 22; i++) {
 		x3[i] = x[i] - rho1 * (x2[i] - x1[i]);
 
-		x_next[i] = ra * (rb * x1[i] + (1 - rb) * x2[i]) + (1 - ra) * x3[i];
+		x_next[i] = ra * (rb * x1[i] + (1.0 - rb) * x2[i]) + (1.0 - ra) * x3[i];
 	}
 
 	//double rand_st = rand_num();
