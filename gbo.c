@@ -16,29 +16,27 @@ double rand_num() {
 
 //Вычисление  нормально распределенного числа от 0 до 1
 double randn() {
-	static int use_last = 0;
-	static double y2;
+    static int hasSpare = 0;
+    static double spare;
+    if (hasSpare) {
+        hasSpare = 0;
+        return spare;
+    }
+    double u, v, s;
+    do {
+        u = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
+        v = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
+        s = u * u + v * v;
+    } while (s >= 1.0 || s == 0.0);
+    s = sqrt(-2.0 * log(s) / s);
+    spare = v * s;
+    hasSpare = 1;
+    double result = u * s;
+    result = (result + 3.0) / 6.0; 
+    if (result < 0.0) result = 0.0;
+    if (result > 1.0) result = 1.0;
 
-	if (use_last) {
-		use_last = 0;
-		return (y2 + 3) / 6.0;
-	}
-
-	double x1, x2, w, y1;
-
-	do {
-		x1 = 2.0 * rand_num() - 1.0;
-		x2 = 2.0 * rand_num() - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while (w >= 1.0 || w == 0.0);
-
-	w = sqrt((-2.0 * log(w)) / w);
-	y1 = x1 * w;
-	y2 = x2 * w;
-
-	use_last = 1;
-
-	return (y1 + 3) / 6.0;
+    return result;
 }
 
 //Вычисление rho
