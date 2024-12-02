@@ -84,7 +84,7 @@ double of(double original_dct_block[8][8], double changed_dct_block[8][8], doubl
 }
 
 
-void apply_x(double block[8][8], double x[22], double new_block[8][8]) {
+/*void apply_x(double block[8][8], double x[22], double new_block[8][8]) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             new_block[i][j] = block[i][j];
@@ -113,9 +113,37 @@ void apply_x(double block[8][8], double x[22], double new_block[8][8]) {
         new_block[row][col] = sign(new_block[row][col]) * fabs(fabs(new_block[row][col]) + x[index]);
         index++;
     }
+}*/
+
+void apply_x(double block[8][8], double x[22], double new_block[8][8]) {
+    for(int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            new_block[i][j] = block[i][j];
+        }
+    }
+    new_block[6][0] = sign(new_block[6][0]) * fabs(fabs(new_block[6][0]) + x[0]);
+    new_block[5][1] = sign(new_block[5][1]) * fabs(fabs(new_block[5][1]) + x[1]);
+    new_block[4][2] = sign(new_block[4][2]) * fabs(fabs(new_block[4][2]) + x[2]);
+    new_block[3][3] = sign(new_block[3][3]) * fabs(fabs(new_block[3][3]) + x[3]);
+    new_block[2][4] = sign(new_block[2][4]) * fabs(fabs(new_block[2][4]) + x[4]);
+    new_block[1][5] = sign(new_block[1][5]) * fabs(fabs(new_block[1][5]) + x[5]);
+    new_block[0][6] = sign(new_block[0][6]) * fabs(fabs(new_block[0][6]) + x[6]);
+    new_block[0][7] = sign(new_block[0][7]) * fabs(fabs(new_block[0][7]) + x[7]);
+    new_block[1][6] = sign(new_block[1][6]) * fabs(fabs(new_block[1][6]) + x[8]);
+    new_block[2][5] = sign(new_block[2][5]) * fabs(fabs(new_block[2][5]) + x[9]);
+    new_block[3][4] = sign(new_block[3][4]) * fabs(fabs(new_block[3][4]) + x[10]);
+    new_block[4][3] = sign(new_block[4][3]) * fabs(fabs(new_block[4][3]) + x[11]);
+    new_block[5][2] = sign(new_block[5][2]) * fabs(fabs(new_block[5][2]) + x[12]);
+    new_block[6][1] = sign(new_block[6][1]) * fabs(fabs(new_block[6][1]) + x[13]);
+    new_block[7][0] = sign(new_block[7][0]) * fabs(fabs(new_block[7][0]) + x[14]);
+    new_block[7][1] = sign(new_block[7][1]) * fabs(fabs(new_block[7][1]) + x[15]);
+    new_block[6][2] = sign(new_block[6][2]) * fabs(fabs(new_block[6][2]) + x[16]);
+    new_block[5][3] = sign(new_block[5][3]) * fabs(fabs(new_block[5][3]) + x[17]);
+    new_block[4][4] = sign(new_block[4][4]) * fabs(fabs(new_block[4][4]) + x[18]);
+    new_block[3][5] = sign(new_block[3][5]) * fabs(fabs(new_block[3][5]) + x[19]);
+    new_block[2][6] = sign(new_block[2][6]) * fabs(fabs(new_block[2][6]) + x[20]);
+    new_block[1][7] = sign(new_block[1][7]) * fabs(fabs(new_block[1][7]) + x[21]);
 }
-
-
 
 int find_x_best(double population[][22], double original_dct_block[8][8], int popul_size, const char b) {
     double best_value = DBL_MAX;
