@@ -45,7 +45,7 @@ double new_rho(double alpha) {
 }
 
 //Вычисление инедксов рандомных векторов
-void gen_indexes(int indexes[5], int n, int cur_ind, int best_ind, int worst_ind) {
+void gen_indexes(int indexes[5], int n, int cur_ind) {
 	int cnt = 0;
 
 	indexes[0] = -1;
@@ -250,7 +250,7 @@ void gbo(double population[][22], int m, int n, double pr, double th, double dct
 			double x_next[22];  //новый вектор
 
 			int indexes[5];
-			gen_indexes(indexes, n, cur_vec, best_ind, worst_ind); //Массив индексов рандомных векторов
+			gen_indexes(indexes, n, cur_vec); //Массив индексов рандомных векторов
 
 			//Копирование  рандомных векторов популяции
 			memcpy(xr1, population[indexes[0]], 22);
