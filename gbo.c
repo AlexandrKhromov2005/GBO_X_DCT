@@ -63,6 +63,22 @@ void gen_indexes(int indexes[5], int n, int cur_ind) {
 	}
 }
 
+//Проверка x_next по значению OF
+void check_x_next_for_of(double population[][22], double x_next[22], double f_x_next, xind f_list, int cur_vec) {
+	if ((f_list.f_values[cur_vec] < f_x_next) && (f_list.f_values[f_list.worst] > f_x_next)) {
+		return;
+	}
+	
+	if (f_list.f_values[f_list.best] > f_x_next) {
+		f_list.best = cur_vec;
+	}	else if (f_list.f_values[f_list.worst] < f_x_next) {
+				f_list.worst = cur_vec;
+		}
+
+	memcpy(population[cur_vec], x_next, 22);
+	f_list.f_values[cur_vec] = f_x_next;
+}
+
 //Вычисление нового вектора через GSR
 void gsr(double x_next[22], double x[22], double x1[22], double x2[22], double x_best[22], double x_worst[22], double xr1[22], double xr2[22], double xr3[22], double xr4[22], int cur_iter, int m, int n, double* alpha) {
 	
