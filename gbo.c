@@ -224,10 +224,10 @@ void leo(double x_next[22], double x[22], double x_best[22], double x1[22], doub
 }
 
 //Обновление популяции через GBO
-void gbo(double population[][22], int m, int n, double pr, double th, double dct_block[8][8], unsigned char wm_bite) {
+void gbo(double population[][22], int m, int n, double pr, double th, double dct_block[8][8], unsigned char wm_bit) {
 	//обработка популяции
 	for (int cur_iter = 0; cur_iter < m; cur_iter++) {
-		xind f_list = find_x_bw(population, dct_block, n, wm_bite);
+		xind f_list = find_x_bw(population, dct_block, n, wm_bit);
 
 		int best_ind = f_list.best;
 		int worst_ind = f_list.worst;
@@ -280,7 +280,7 @@ void gbo(double population[][22], int m, int n, double pr, double th, double dct
 			//Расчитываем целевую функцию для нового вектора
 			double changed_dct_block[8][8];
 			apply_x(dct_block, x_next, changed_dct_block);
-			double f_x_next = of(dct_block, changed_dct_block, x_next, wm_bite);
+			double f_x_next = of(dct_block, changed_dct_block, x_next, wm_bit);
 
 			//Если значение F нового вектора лучше текущего, то обновляем его
 			if (f_x_next < f_values[cur_vec]) {
