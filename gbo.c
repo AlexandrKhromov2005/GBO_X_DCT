@@ -245,11 +245,6 @@ void gbo(double population[][22], int m, int n, double pr, double th, double dct
 	for (int cur_iter = 0; cur_iter < m; cur_iter++) {
 		xind f_list = find_x_bw(population, dct_block, n, wm_bit);
 
-		int best_ind = f_list.best;
-		int worst_ind = f_list.worst;
-		double f_values[22];
-		memcpy(f_values, f_list.f_values, sizeof(f_values));
-
 		for (int cur_vec = 0; cur_vec < n; cur_vec++) {
 			double alpha;		//инициализация alpha
 			double x1[22];	   //вектор x1	
@@ -261,7 +256,7 @@ void gbo(double population[][22], int m, int n, double pr, double th, double dct
 			double x_p[22];    //рандомный вектор p	
 			double x_rand[22]; //рандомно сгенерированный вектор
 			for (int i = 0; i < 22; i++) {
-				x_rand[i] = (double)(-th) + 2 * (double)th * rand_num();
+				x_rand[i] = -th + 2.0 * th * rand_num();
 			}
 			double x_next[22];  //новый вектор
 
@@ -276,7 +271,7 @@ void gbo(double population[][22], int m, int n, double pr, double th, double dct
 			memcpy(x_p, population[indexes[4]], 22);
 
 			//Вычисление нового вектора через GSR
-			gsr(x_next, population[cur_vec], x1, x2, population[best_ind], population[worst_ind], xr1, xr2, xr3, xr4, cur_iter, m, n, &alpha);
+			gsr(x_next, population[cur_vec], x1, x2, population[f_list.best], population[f_list.worst], xr1, xr2, xr3, xr4, cur_iter, m, n, &alpha);
 
 			if (rand_num() < pr) {
 				//Вычисление нового вектора через LEO
@@ -298,22 +293,8 @@ void gbo(double population[][22], int m, int n, double pr, double th, double dct
 			apply_x(dct_block, x_next, changed_dct_block);
 			double f_x_next = of(dct_block, changed_dct_block, x_next, wm_bit);
 
-			//Если значение F нового вектора лучше текущего, то обновляем его
-			if (f_x_next < f_values[cur_vec]) {
-				memcpy(population[cur_vec], x_next, 22);
-				f_values[cur_vec] = f_x_next;
-			}
-
-			//Если значение F нового вектора лучше лучшего вектора, то обновляем лучший вектор
-			if (f_x_next < f_values[best_ind]) {
-				memcpy(population[best_ind], x_next, 22);
-				f_values[best_ind] = f_x_next;
-			}
-
-			//Если значение F нового вектора хуже худшего вектора, то обновляем худший вектор
-			if (f_x_next > f_values[worst_ind]) {
-				memcpy(population[worst_ind], x_next, 22);
-				f_values[worst_ind] = f_x_next;
+			check_x_next_for_of(population, x_next, f_x_next, f_list, cur_vec)
+			
 			}			
 		}
 	}
