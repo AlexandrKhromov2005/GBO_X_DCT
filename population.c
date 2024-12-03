@@ -81,10 +81,10 @@ double rand_double() {
     return (n > 0.0) ? 1.0 : -1.0;
 }*/
 
-void create_population(int th, int d, double population[][22]) {
+void create_population(double th, int d, double population[][22]) {
     for (int i = 0; i < d; i++) {
         for (int j = 0; j < 22; j++) {
-            population[i][j] = (double)-th + 2 * (double)th * rand_double();
+            population[i][j] = -th + 2.0 * th * rand_double();
         }
     }
 }
