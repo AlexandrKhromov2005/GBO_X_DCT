@@ -59,27 +59,9 @@ void apply_x(double block[8][8], double x[22], double new_block[8][8]) {
     UPDATE_BLOCK(new_block, 1, 7, 21);
 }
 
-/*double get_s0_sum(double block[8][8]) {
-    return fabs(block[5][1]) + fabs(block[6][1]) + fabs(block[7][1]) +
-        fabs(block[3][3]) + fabs(block[4][3]) + fabs(block[5][3]) +
-        fabs(block[1][5]) + fabs(block[2][5]) + fabs(block[3][5]) +
-        fabs(block[0][7]) + fabs(block[1][7]);
-}
-
-double get_s1_sum(double block[8][8]) {
-    return fabs(block[6][0]) + fabs(block[7][0]) + fabs(block[4][2]) +
-        fabs(block[5][2]) + fabs(block[6][2]) + fabs(block[2][4]) +
-        fabs(block[3][4]) + fabs(block[4][4]) + fabs(block[0][6]) +
-        fabs(block[1][6]) + fabs(block[2][6]);
-}*/
-
 double rand_double() {
     return (double)rand() / RAND_MAX;
 }
-
-/*double sign(double n) {
-    return (n > 0.0) ? 1.0 : -1.0;
-}*/
 
 void create_population(double th, int d, double population[][22]) {
     for (int i = 0; i < d; i++) {
